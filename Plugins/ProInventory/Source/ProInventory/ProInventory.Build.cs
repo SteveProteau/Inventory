@@ -39,6 +39,7 @@ public class ProInventory : ModuleRules
 				"Slate",
 				"SlateCore", 
 				"EnhancedInput",
+				"UMG"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

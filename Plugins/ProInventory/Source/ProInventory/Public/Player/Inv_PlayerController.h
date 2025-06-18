@@ -17,6 +17,8 @@ UCLASS()
 class PROINVENTORY_API AInv_PlayerController : public APlayerController
 {
 	GENERATED_BODY()
+	AInv_PlayerController();
+	virtual void Tick(float DeltaSeconds) override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -26,6 +28,7 @@ private:
 	UFUNCTION()
 	void PrimaryInteract();
 	void CreateHUDWidget();
+	void TraceForItem();
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	TArray<UInputMappingContext*> DefaultIMCs;
@@ -38,4 +41,16 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UInv_HUDWidget> HUDWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	double TraceLength;
+
+	// Need TEnumAsByte to expose to blueprint details panel
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	TEnumAsByte<ECollisionChannel> ItemTraceChannel;
+
+	// Not using UPROPERTY here because we don't want to prevent garbage collection of these items
+	// (not clear what the scenario is for that)
+	TWeakObjectPtr<AActor> ThisActor;
+	TWeakObjectPtr<AActor> LastActor;
 };

@@ -18,7 +18,12 @@ class PROINVENTORY_API UInv_InventoryItem : public UObject
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+	// Needed since we use the replicated subobject list on the inventory component!!! 
+	virtual bool IsSupportedForNetworking() const override { return true; }
+	
 	void SetItemManifest(const FInv_ItemManifest& Manifest);
+	const FInv_ItemManifest& GetItemManifest() const { return ItemManifest.Get<FInv_ItemManifest>(); }
+	FInv_ItemManifest& GetItemManifestMutable() { return ItemManifest.GetMutable<FInv_ItemManifest>(); }
 
 private:
 	// Meta used to restrict drop-down classes to those derived from FInv_ItemManifest

@@ -84,8 +84,21 @@ void UInv_InventoryGrid::AddItemAtIndex(UInv_InventoryItem* Item, const int32 In
 	UInv_SlottedItem* SlottedItem = CreateSlottedItem(Item, bStackable, StackAmount, GridFragment, ImageFragment, Index);
 	
 	// Add the slotted item to the canvas panel.
+	AddSlottedItemToCanvas(Index, GridFragment, SlottedItem);
 	
 	// Store the new widget in a container.
+	SlottedItems.Add(Index, SlottedItem);
+}
+
+void UInv_InventoryGrid::AddSlottedItemToCanvas(const int32 Index, const FInv_GridFragment* GridFragment, UInv_SlottedItem* SlottedItem) const
+{
+	CanvasPanel->AddChild(SlottedItem);
+	
+	UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(SlottedItem);
+	CanvasSlot->SetSize(GetDrawSize(GridFragment));
+	const FVector2D DrawPos = UInv_WidgetUtils::GetPositionFromIndex(Index, Columns) * TileSize;
+	const FVector2D DrawPosWithPadding = DrawPos + FVector2D(GridFragment->GetGridPadding());
+	CanvasSlot->SetPosition(DrawPosWithPadding);
 }
 
 void UInv_InventoryGrid::ConstructGrid()
@@ -121,6 +134,8 @@ bool UInv_InventoryGrid::MatchesCategory(const UInv_InventoryItem* Item) const
 FVector2D UInv_InventoryGrid::GetDrawSize(const FInv_GridFragment* GridFragment) const
 {
 	const float IconTileWidth = TileSize - GridFragment->GetGridPadding() * 2;
+
+	// GridFragment->GetGridSize() is a 1x1 square - so why not use that instead?
 	return GridFragment->GetGridSize() * IconTileWidth;
 }
 

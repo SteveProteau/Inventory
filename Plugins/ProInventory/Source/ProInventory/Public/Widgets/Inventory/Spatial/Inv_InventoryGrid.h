@@ -30,6 +30,12 @@ public:
 	FInv_SlotAvailabilityResult HasRoomForItem(const UInv_ItemComponent* ItemComponent) const;
 
 	bool IsIndexClaimed(const TSet<int32>& CheckedIndices, const int32 Index) const;
+	bool HasRoomAtIndex(const UInv_GridSlot* GridSlot,
+		const FIntPoint& Dimensions,
+		const TSet<int32>& CheckedIndices,
+		TSet<int32>& OutTentativelyClaimed) const;
+	bool CheckSlotConstraints(const UInv_GridSlot* SubGridSlot) const ;
+	FIntPoint GetItemDimensions(const FInv_ItemManifest& Manifest) const;
 	
 	UFUNCTION()
 	void AddItem(UInv_InventoryItem* Item);

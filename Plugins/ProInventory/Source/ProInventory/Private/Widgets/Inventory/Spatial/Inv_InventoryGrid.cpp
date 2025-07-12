@@ -61,13 +61,15 @@ FInv_SlotAvailabilityResult UInv_InventoryGrid::HasRoomForItem(const FInv_ItemMa
 		if (IsIndexClaimed(CheckedIndices, GridSlot->GetIndex())) continue;
 		
 		// Can the item fit here? (i.e. is it out of grid bounds?)
-		// Is there room at this index? (i.e. are there other items in the way?)
-		// Check any other important conditions - ForEach2D over a 2D range
-			// Index claimed?
-			// Has valid item?
-			// Is this item the same type as the item we're trying to add?
-			// If so, is this a stackable item?
-			// If stackable, is this slot at the max stack size already?
+		TSet<int32> TentativelyClaimed;
+		if (!HasRoomAtIndex(GridSlot, GetItemDimensions(Manifest), CheckedIndices, TentativelyClaimed))
+		{
+			continue;
+		}
+
+		CheckedIndices.Append(TentativelyClaimed);
+		
+
 		// How much to fill?
 		// Update the amount left to fill
 	}
@@ -80,6 +82,46 @@ FInv_SlotAvailabilityResult UInv_InventoryGrid::HasRoomForItem(const FInv_ItemMa
 bool UInv_InventoryGrid::IsIndexClaimed(const TSet<int32>& CheckedIndices, const int32 Index) const
 {
 	return CheckedIndices.Contains(Index);
+}
+
+bool UInv_InventoryGrid::HasRoomAtIndex(const UInv_GridSlot* GridSlot,
+										const FIntPoint& Dimensions,
+										const TSet<int32>& CheckedIndices,
+										TSet<int32>& OutTentativelyClaimed) const
+{
+	// Is there room at this index? (i.e. are there other items in the way?)
+	bool bHasRoomAtIndex = true;
+	
+	UInv_InventoryStatics::ForEach2D(GridSlots, GridSlot->GetIndex(), Dimensions, Columns, [&](const UInv_GridSlot* SubGridSlot)
+	{
+		if (CheckSlotConstraints(SubGridSlot))
+		{
+			OutTentativelyClaimed.Add(SubGridSlot->GetIndex());
+		}
+		else
+		{
+			bHasRoomAtIndex = false;
+		}
+	});
+
+	return bHasRoomAtIndex;
+}
+
+bool UInv_InventoryGrid::CheckSlotConstraints(const UInv_GridSlot* SubGridSlot) const
+{
+	// Check any other important conditions - ForEach2D over a 2D range
+	// Index claimed?
+	// Has valid item?
+	// Is this item the same type as the item we're trying to add?
+	// If so, is this a stackable item?
+	// If stackable, is this slot at the max stack size already?
+	return false;
+}
+
+FIntPoint UInv_InventoryGrid::GetItemDimensions(const FInv_ItemManifest& Manifest) const
+{
+	const FInv_GridFragment* GridFragment = Manifest.GetFragmentOfType<FInv_GridFragment>();
+	return GridFragment ? GridFragment->GetGridSize() : FIntPoint(1, 1);
 }
 
 void UInv_InventoryGrid::AddItem(UInv_InventoryItem* Item)

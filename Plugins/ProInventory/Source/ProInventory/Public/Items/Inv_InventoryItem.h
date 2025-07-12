@@ -24,6 +24,7 @@ public:
 	void SetItemManifest(const FInv_ItemManifest& Manifest);
 	const FInv_ItemManifest& GetItemManifest() const { return ItemManifest.Get<FInv_ItemManifest>(); }
 	FInv_ItemManifest& GetItemManifestMutable() { return ItemManifest.GetMutable<FInv_ItemManifest>(); }
+	bool IsStackable() const;
 
 private:
 	// Meta used to restrict drop-down classes to those derived from FInv_ItemManifest

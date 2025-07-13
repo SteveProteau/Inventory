@@ -69,17 +69,31 @@ FInv_SlotAvailabilityResult UInv_InventoryGrid::HasRoomForItem(const FInv_ItemMa
 		{
 			continue;
 		}
-
-		CheckedIndices.Append(TentativelyClaimed);
 		
 		// How much to fill?
 		const int32 AmountToFillInSlot = DetermineFillAmountForSlot(Result.bStackable, MaxStackSize, AmountToFill, GridSlot);
 		if (AmountToFillInSlot == 0) continue;
 		
-		// Update the amount left to fill
+		CheckedIndices.Append(TentativelyClaimed);
+		
+		// Update the amount left to fill (set zero for non-stackable)
+		// Note: Emplace constructs right in the array without doing copies!
+		Result.TotalRoomToFill += AmountToFillInSlot;
+		Result.SlotAvailabilities.Emplace(
+			FInv_SlotAvailability{
+				HasValidItem(GridSlot) ? GridSlot->GetUpperLeftIndex() : GridSlot->GetIndex(),
+				Result.bStackable ? AmountToFillInSlot : 0,
+				HasValidItem(GridSlot)
+			}
+		);
+
+		AmountToFill -= AmountToFillInSlot;
+
+		// How much is the Remainder?
+		Result.Remainder = AmountToFill;
+
+		if (AmountToFill == 0) return Result;
 	}
-	
-	// How much is the Remainder?
 	
 	return Result;
 }

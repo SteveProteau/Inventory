@@ -59,6 +59,9 @@ FInv_SlotAvailabilityResult UInv_InventoryGrid::HasRoomForItem(const FInv_ItemMa
 		
 		// Is this index claimed yet?
 		if (IsIndexClaimed(CheckedIndices, GridSlot->GetIndex())) continue;
+
+		// Is the item in grid bounds?
+		if (!IsInGridBounds(GridSlot->GetIndex(), GetItemDimensions(Manifest))) continue;
 		
 		// Can the item fit here? (i.e. is it out of grid bounds?)
 		TSet<int32> TentativelyClaimed;
@@ -81,6 +84,14 @@ FInv_SlotAvailabilityResult UInv_InventoryGrid::HasRoomForItem(const FInv_ItemMa
 bool UInv_InventoryGrid::IsIndexClaimed(const TSet<int32>& CheckedIndices, const int32 Index) const
 {
 	return CheckedIndices.Contains(Index);
+}
+
+bool UInv_InventoryGrid::IsInGridBounds(const int32 StartIndex, const FIntPoint& ItemDimensions) const
+{
+	if (StartIndex < 0 || StartIndex >= GridSlots.Num()) return false;
+	const int32 EndColumn = (StartIndex % Columns) + ItemDimensions.X;
+	const int32 EndRow = (StartIndex / Columns) + ItemDimensions.Y;
+	return EndColumn <= Columns && EndRow <= Rows;
 }
 
 bool UInv_InventoryGrid::HasRoomAtIndex(const UInv_GridSlot* GridSlot,

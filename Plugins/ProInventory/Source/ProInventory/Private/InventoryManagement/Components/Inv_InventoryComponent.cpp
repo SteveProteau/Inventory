@@ -3,6 +3,7 @@
 
 #include "InventoryManagement/Components/Inv_InventoryComponent.h"
 
+#include "Items/Inv_InventoryItem.h"
 #include "Items/Components/Inv_ItemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Widgets/Inventory/InventoryBase/Inv_InventoryBase.h"
@@ -52,6 +53,7 @@ void UInv_InventoryComponent::TryAddItem(UInv_ItemComponent* ItemComponent)
 void UInv_InventoryComponent::Server_AddNewItem_Implementation(UInv_ItemComponent* ItemComponent, int32 StackCount)
 {
 	UInv_InventoryItem* NewItem = InventoryList.AddEntry(ItemComponent);
+	NewItem->SetTotalStackCount(StackCount);
 
 	// Broadcast ItemAdded for non-replicated cases (server and standalone).
 	// FInv_InventoryFastArray::PostReplicatedAdd broadcasts in the replication case (don't like this location)
@@ -67,7 +69,14 @@ void UInv_InventoryComponent::Server_AddNewItem_Implementation(UInv_ItemComponen
 void UInv_InventoryComponent::Server_AddStacksToItem_Implementation(UInv_ItemComponent* ItemComponent, int32 StackCount,
 	int32 Remainder)
 {
-	
+		const FGameplayTag& ItemType = IsValid(ItemComponent) ? ItemComponent->GetItemManifest().GetItemType() : FGameplayTag::EmptyTag;
+    	UInv_InventoryItem* Item = InventoryList.FindFirstItemByType(ItemType);
+    	if (!IsValid(Item)) return;
+    
+    	Item->SetTotalStackCount(Item->GetTotalStackCount() + StackCount);
+    
+    	// TODO: Destroy the item if the Remainder is zero.
+    	// Otherwise, update the stack count for the item pickup.
 }
 
 void UInv_InventoryComponent::ToggleInventoryMenu()

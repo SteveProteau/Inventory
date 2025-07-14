@@ -40,6 +40,9 @@ void UInv_InventoryComponent::TryAddItem(UInv_ItemComponent* ItemComponent)
 
 	if (Result.Item.IsValid() && Result.bStackable)
 	{
+		// Broadcast for local cosmetic change of stack count
+		OnStackChange.Broadcast(Result);
+		
 		// Add stacks to an item that already exists in the inventory.  We only want to update the stack count,
 		// not create a new item of this type.
 		Server_AddStacksToItem(ItemComponent, Result.TotalRoomToFill, Result.Remainder);

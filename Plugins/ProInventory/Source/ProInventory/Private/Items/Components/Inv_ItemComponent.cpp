@@ -18,4 +18,11 @@ void UInv_ItemComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProper
 	DOREPLIFETIME(ThisClass, ItemManifest)
 }
 
+void UInv_ItemComponent::PickedUp()
+{
+	// Blueprint implemental event in case designers want to do some special UI (niagara, sound, etc)
+	OnPickedUp();
+	GetOwner()->Destroy();
+}
+
 

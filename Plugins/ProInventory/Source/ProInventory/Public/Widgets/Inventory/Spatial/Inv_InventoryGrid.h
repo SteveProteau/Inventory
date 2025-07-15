@@ -7,6 +7,7 @@
 #include "Types/Inv_GridTypes.h"
 #include "Inv_InventoryGrid.generated.h"
 
+class UInv_HoverItem;
 struct FGameplayTag;
 struct FInv_ImageFragment;
 struct FInv_GridFragment;
@@ -74,7 +75,9 @@ private:
 	 	const int32 Index);
 	void AddSlottedItemToCanvas(const int32 Index, const FInv_GridFragment* GridFragment, UInv_SlottedItem* SlottedItem) const;
 	void UpdateGridSlots(UInv_InventoryItem* NewItem, const int32 Index, bool bStackableItem, const int32 StackAmount);
-
+	bool IsRightClick(const FPointerEvent& MouseEvent) const;
+	bool IsLeftClick(const FPointerEvent& MouseEvent) const;
+	
 	UFUNCTION()
 	void AddStacks(const FInv_SlotAvailabilityResult& Result);
 
@@ -107,4 +110,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Inventory")
 	float TileSize;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	TSubclassOf<UInv_HoverItem> HoverItemClass;
+
+	UPROPERTY()
+	TObjectPtr<UInv_HoverItem> HoverItem;
 };

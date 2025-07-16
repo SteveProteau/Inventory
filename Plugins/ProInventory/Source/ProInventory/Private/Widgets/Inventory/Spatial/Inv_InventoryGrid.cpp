@@ -135,11 +135,30 @@ FInv_SpaceQueryResult UInv_InventoryGrid::CheckHoverPosition(const FIntPoint& Po
 {
 	FInv_SpaceQueryResult Result;
 	
-	// in the grid bounds?
+	// In the grid bounds?
 	if (!IsInGridBounds(UInv_WidgetUtils::GetIndexFromPosition(Position, Columns), Dimensions)) return Result;
+
+	Result.bHasSpace = true;
 	
-	// any items in the way?
+	// If more than one of the indices is occupied with the same item, we need to see if they all have
+	// the same upper-left index.
+	TSet<int32> OccupiedUpperLeftIndices;
+	UInv_InventoryStatics::ForEach2D(GridSlots, UInv_WidgetUtils::GetIndexFromPosition(Position, Columns), Dimensions, Columns, [&](const UInv_GridSlot* GridSlot)
+	{
+		if (GridSlot->GetInventoryItem().IsValid())
+		{
+			OccupiedUpperLeftIndices.Add(GridSlot->GetUpperLeftIndex());
+			Result.bHasSpace = false;
+		}
+	});
+	
 	// if so, is there only one item in the way? (can we swap?)
+	if (OccupiedUpperLeftIndices.Num() == 1) // single item at position - it's valid for swapping/combining
+	{
+		const int32 Index = *OccupiedUpperLeftIndices.CreateConstIterator();
+		Result.ValidItem = GridSlots[Index]->GetInventoryItem();
+		Result.UpperLeftIndex = GridSlots[Index]->GetUpperLeftIndex();
+	}
 
 	return Result;
 }

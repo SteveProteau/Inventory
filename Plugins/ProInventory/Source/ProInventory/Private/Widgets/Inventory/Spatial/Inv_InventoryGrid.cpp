@@ -93,12 +93,10 @@ void UInv_InventoryGrid::OnTileParametersUpdated(const FInv_TileParameters& Para
 	const FIntPoint Dimensions = HoverItem->GetGridDimensions();
 	
 	// Calculate the starting coordinate for highlighting
-	const FIntPoint StartingCoordinate = CalculateStartingCoordinate(Parameters.TileCoordinats, Dimensions, Parameters.TileQuadrant);
+	const FIntPoint StartingCoordinate = CalculateStartingCoordinate(Parameters.TileCoordinates, Dimensions, Parameters.TileQuadrant);
+	ItemDropIndex = UInv_WidgetUtils::GetIndexFromPosition(StartingCoordinate, Columns);
 	
-	// Check hover position
-	// In the grid bounds?
-	// Any items in the way?
-	// If so, is there only one item in the way? (can we swap?)
+	CurrentQueryResult = CheckHoverPosition(StartingCoordinate, Dimensions);
 }
 
 FIntPoint UInv_InventoryGrid::CalculateStartingCoordinate(const FIntPoint& Coordinate, const FIntPoint& Dimensions, const EInv_TileQuadrant Quadrant) const
@@ -131,6 +129,19 @@ FIntPoint UInv_InventoryGrid::CalculateStartingCoordinate(const FIntPoint& Coord
 	}
 	
 	return StartingCoord;
+}
+
+FInv_SpaceQueryResult UInv_InventoryGrid::CheckHoverPosition(const FIntPoint& Position, const FIntPoint& Dimensions) const
+{
+	FInv_SpaceQueryResult Result;
+	
+	// in the grid bounds?
+	if (!IsInGridBounds(UInv_WidgetUtils::GetIndexFromPosition(Position, Columns), Dimensions)) return Result;
+	
+	// any items in the way?
+	// if so, is there only one item in the way? (can we swap?)
+
+	return Result;
 }
 
 FInv_SlotAvailabilityResult UInv_InventoryGrid::HasRoomForItem(const UInv_ItemComponent* ItemComponent) const

@@ -90,7 +90,8 @@ private:
 	FIntPoint CalculateStartingCoordinate(const FIntPoint& Coordinate, const FIntPoint& Dimensions, const EInv_TileQuadrant Quadrant) const;
 	FIntPoint CalculateStartingCoordinate(const FIntPoint& Coordinate, const FIntPoint& Dimensions, const EInv_TileQuadrant Quadrant, const int32 MaxStackSize) const;
 	FInv_SpaceQueryResult CheckHoverPosition(const FIntPoint& Position, const FIntPoint& Dimensions) const;
-
+	bool CursorExitedCanvas(const FVector2D& BoundaryPos, const FVector2D& BoundarySize, const FVector2D& Location);
+	
 	UFUNCTION()
 	void AddStacks(const FInv_SlotAvailabilityResult& Result);
 
@@ -136,5 +137,7 @@ private:
 	// Index where an item would be placed if we click on the grid at a valid location
 	int32 ItemDropIndex{INDEX_NONE};
 	FInv_SpaceQueryResult CurrentQueryResult;
+	bool bMouseWithinCanvas;
+	bool bLastMouseWithinCanvas;
 };
 

@@ -628,7 +628,28 @@ void UInv_InventoryGrid::OnSlottedItemClicked(int32 GridIndex, const FPointerEve
 
 void UInv_InventoryGrid::OnGridSlotClicked(int32 GridIndex, const FPointerEvent& MouseEvent)
 {
-	
+	// If not holding an item, ignore click
+	if (!IsValid(HoverItem)) return;
+
+	// If no valid top-left index for thi item we are dropping
+	if (!GridSlots.IsValidIndex(ItemDropIndex)) return;
+
+	// See if we are overlapping a valid item. Here the Query result upper-left index is for an
+	// item in the way, not where we would drop our item
+	if (CurrentQueryResult.ValidItem.IsValid() && GridSlots.IsValidIndex(CurrentQueryResult.UpperLeftIndex))
+	{
+		// Forward request to slotted clicked item we overlap
+		OnSlottedItemClicked(CurrentQueryResult.UpperLeftIndex, MouseEvent);
+		return;
+	}
+
+	auto GridSlot = GridSlots[ItemDropIndex];
+
+	// Not sure why we need to check this - shouldn't above if handle this?
+	if (!GridSlot->GetInventoryItem().IsValid())
+	{
+		// ToDO: Put intem down at this index
+	}
 }
 
 void UInv_InventoryGrid::OnGridSlotHovered(int32 GridIndex, const FPointerEvent& MouseEvent)
